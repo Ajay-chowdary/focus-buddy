@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>FocusBuddy AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        /* Default Theme (Dark / Black) */
+        --color-page: #000000;
+        --color-card: #1C1C1E;
+        --color-primary: #F9FAFB;
+        --color-secondary: #9CA3AF;
+        --color-border: #27272A;
+        --color-surface: #2C2C2E;
+        --color-surface-highlight: #3A3A3C;
+        
+        /* Premium iOS Easing */
+        --ease-spring: cubic-bezier(0.22, 0.61, 0.36, 1);
+        --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      
+      .light-mode {
+        /* Optional Light Theme */
+        --color-page: #F5F5F7;
+        --color-card: #FFFFFF;
+        --color-primary: #111827;
+        --color-secondary: #6B7280;
+        --color-border: #E5E7EB;
+        --color-surface: #F9FAFB;
+        --color-surface-highlight: #F3F4F6;
+      }
+
+      body {
+        background-color: var(--color-page);
+        color: var(--color-primary);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: background-color 0.4s var(--ease-spring), color 0.4s var(--ease-spring);
+      }
+
+      /* Hide scrollbar for clean UI */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Premium Glass Nav */
+      .glass-nav {
+        /* Default Dark Style */
+        background: rgba(28, 28, 30, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+      .light-mode .glass-nav {
+        /* Light Mode Override */
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+      }
+
+      /* Liquid Indicator with Spring Easing */
+      .liquid-indicator {
+        /* Default Dark Style */
+        background: radial-gradient(circle at 0 0, rgba(248, 113, 113, 0.2), transparent 60%),
+                    radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.4), transparent 60%),
+                    rgba(60, 60, 60, 0.8);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: transform 400ms var(--ease-spring); 
+      }
+      .light-mode .liquid-indicator {
+        /* Light Mode Override */
+        background: radial-gradient(circle at 0 0, rgba(248, 113, 113, 0.15), transparent 60%),
+                    radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.35), transparent 60%),
+                    rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 24px rgba(249, 115, 22, 0.35);
+      }
+
+      /* --- 2) Premium Hover Depth & Press Effects --- */
+
+      /* Floats up slightly on hover */
+      .ios-float-card {
+        transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring), border-color 0.3s ease, background-color 0.3s ease;
+        will-change: transform;
+        backface-visibility: hidden;
+      }
+      @media (hover: hover) {
+        .ios-float-card:hover {
+          /* Default Dark Hover */
+          transform: translateY(-4px) scale(1.005);
+          border-color: rgba(255,255,255, 0.15);
+          box-shadow: 0 14px 30px -10px rgba(0,0,0,0.3);
+          z-index: 10;
+        }
+        .light-mode .ios-float-card:hover {
+          /* Light Mode Hover */
+          border-color: rgba(0,0,0, 0.08); 
+          box-shadow: 0 14px 30px -10px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.03);
+        }
+      }
+
+      /* Compresses on click, springy return */
+      .ios-press-btn {
+        transition: transform 0.3s var(--ease-spring), background-color 0.2s ease, box-shadow 0.3s var(--ease-spring), color 0.2s ease;
+        will-change: transform;
+        cursor: pointer;
+        user-select: none;
+      }
+      @media (hover: hover) {
+        .ios-press-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1);
+        }
+      }
+      .ios-press-btn:active {
+        transform: scale(0.96) !important;
+        transition-duration: 0.1s; /* Quick compression */
+      }
+      
+      /* Premium Hover Wiggle Effect */
+      @keyframes wiggle-subtle {
+        0% { transform: translateY(0) scale(1) rotate(0deg); }
+        15% { transform: translateY(-2px) scale(1.02) rotate(-1.5deg); }
+        30% { transform: translateY(-2px) scale(1.02) rotate(1.5deg); }
+        45% { transform: translateY(-2px) scale(1.02) rotate(-1deg); }
+        60% { transform: translateY(-2px) scale(1.02) rotate(0.5deg); }
+        75% { transform: translateY(-2px) scale(1.02) rotate(0deg); }
+        100% { transform: translateY(-2px) scale(1.02) rotate(0deg); }
+      }
+
+      .ios-hover-wiggle {
+        transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+        will-change: transform;
+        cursor: pointer;
+        user-select: none;
+      }
+      
+      @media (hover: hover) {
+        .ios-hover-wiggle:hover {
+          animation: wiggle-subtle 0.5s ease-out forwards;
+          box-shadow: 0 8px 24px -6px rgba(0,0,0,0.15);
+        }
+      }
+      
+      .ios-hover-wiggle:active {
+        animation: none !important;
+        transform: scale(0.96) !important;
+      }
+
+      /* Chip selection pop */
+      @keyframes scale-pop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
+      .animate-pop {
+        animation: scale-pop 0.35s var(--ease-spring);
+      }
+
+      /* --- 3) Ambient Subtle Motion (Shimmer) --- */
+      @keyframes shimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .animate-shimmer {
+        background: linear-gradient(90deg, 
+          rgba(255,255,255,0) 0%, 
+          rgba(255,255,255,0.0) 40%, 
+          rgba(255,255,255,0.2) 50%, 
+          rgba(255,255,255,0.0) 60%, 
+          rgba(255,255,255,0) 100%);
+        background-size: 200% 200%;
+        animation: shimmer 5s ease-in-out infinite;
+      }
+      
+      /* Custom Keyframes for View Transitions */
+      @keyframes enter-fade {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+      @keyframes enter-slide-bottom {
+        0% { transform: translateY(1.5rem); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      @keyframes enter-slide-top {
+        0% { transform: translateY(-0.5rem); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      @keyframes enter-zoom {
+        0% { transform: scale(0.94); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* --- PREMIUM DUCK ANIMATIONS --- */
+      
+      /* Glossy Bubble Container */
+      .duck-premium-circle {
+        /* Rich Sky Gradient */
+        background: radial-gradient(circle at 30% 35%, rgba(255, 255, 255, 0.6) 0%, rgba(125, 211, 252, 1) 40%, rgba(14, 165, 233, 1) 100%);
+        box-shadow: 
+          inset 0 2px 8px rgba(255, 255, 255, 0.7),
+          inset 0 -4px 10px rgba(12, 74, 110, 0.15),
+          0 12px 24px -6px rgba(14, 165, 233, 0.4);
+      }
+
+      /* 1. Continuous Float (Breathing) */
+      @keyframes duck-float {
+        0%, 100% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-4px) scale(1.03); }
+      }
+      .animate-duck-float {
+        animation: duck-float 3.5s ease-in-out infinite;
+      }
+
+      /* 2. Entrance Tilt (Hey!) */
+      @keyframes duck-hello-tilt {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(-12deg) scale(1.1); }
+        50% { transform: rotate(8deg) scale(1.05); }
+        75% { transform: rotate(-3deg) scale(1.02); }
+        100% { transform: rotate(0deg) scale(1); }
+      }
+      .animate-duck-hello {
+        animation: duck-hello-tilt 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* 3. Realistic Blink */
+      @keyframes duck-eye-blink {
+        0%, 96%, 100% { transform: scaleY(1); }
+        98% { transform: scaleY(0.1); }
+      }
+      .animate-duck-blink {
+        animation: duck-eye-blink 5s infinite;
+        transform-origin: center 55px; /* Pivot around eye center y-axis */
+      }
+
+      /* 4. Scanning Eyes (Subtle) */
+      @keyframes eyes-scan-pattern {
+        0%, 40% { transform: translateX(0); }
+        45%, 50% { transform: translateX(-4px); } /* Look Left */
+        60%, 85% { transform: translateX(0); }
+        90%, 95% { transform: translateX(4px); }  /* Look Right */
+        100% { transform: translateX(0); }
+      }
+
+      /* Hand Gestures (Preserved) */
+      @keyframes hand-gesture-left-seq {
+        0% { transform: translate(-20px, 50px) rotate(-45deg); opacity: 0; }
+        10% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 
+        25% { transform: translate(0, 0) rotate(0deg); }
+        32% { transform: translate(-12px, 18px) scale(1.6) rotate(-25deg); } 
+        45% { transform: translate(-12px, 18px) scale(1.6) rotate(-25deg); }
+        52% { transform: translate(0, 0) rotate(0deg) scale(1); } 
+        65% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        72% { transform: translate(-12px, 18px) scale(1.6) rotate(-25deg); } 
+        85% { transform: translate(-12px, 18px) scale(1.6) rotate(-25deg); }
+        100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      }
+      
+      @keyframes hand-gesture-right-seq {
+        0% { transform: translate(20px, 50px) rotate(45deg); opacity: 0; }
+        10% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 
+        25% { transform: translate(0, 0) rotate(0deg); }
+        32% { transform: translate(12px, 18px) scale(1.6) rotate(25deg); } 
+        45% { transform: translate(12px, 18px) scale(1.6) rotate(25deg); }
+        52% { transform: translate(0, 0) rotate(0deg) scale(1); } 
+        65% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        72% { transform: translate(12px, 18px) scale(1.6) rotate(25deg); } 
+        85% { transform: translate(12px, 18px) scale(1.6) rotate(25deg); }
+        100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      }
+
+      /* Wave Animation for Liquid Timer */
+      @keyframes wave-slide {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+
+      .animate-wave-slide {
+        animation: wave-slide 4s linear infinite;
+      }
+      .animate-wave-slide-fast {
+        animation: wave-slide 2.5s linear infinite;
+      }
+
+      @keyframes bubble-rise {
+        0% { transform: translateY(0) scale(0.8); opacity: 0; }
+        20% { opacity: 0.6; }
+        80% { opacity: 0.6; }
+        100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
+      }
+
+      .animate-bubble {
+        animation: bubble-rise 4s infinite ease-in;
+      }
+
+      /* Utility classes imitating tailwindcss-animate */
+      .animate-in {
+        animation-duration: 0.6s;
+        animation-timing-function: var(--ease-spring);
+        animation-fill-mode: backwards;
+      }
+      
+      .fade-in {
+        animation-name: enter-fade;
+      }
+      
+      /* Composite animations (Slide includes opacity for smoothness) */
+      .slide-in-from-bottom-4 {
+        animation-name: enter-slide-bottom;
+      }
+      
+      .slide-in-from-top-2 {
+        animation-name: enter-slide-top;
+      }
+      
+      .zoom-in-95 {
+        animation-name: enter-zoom;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              page: 'var(--color-page)',
+              card: 'var(--color-card)',
+              primary: 'var(--color-primary)',
+              brand: '#C2410C',
+              secondary: 'var(--color-secondary)',
+              border: 'var(--color-border)',
+              surface: 'var(--color-surface)',
+              'surface-highlight': 'var(--color-surface-highlight)',
+              inactive: '#9CA3AF',
+              accent: '#16A34A',
+            },
+            fontFamily: {
+              sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro"', 'system-ui', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js",
+    "firebase/analytics": "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
