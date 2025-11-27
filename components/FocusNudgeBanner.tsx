@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { X, Briefcase, Coffee } from 'lucide-react';
 import { DuckMood } from '../types';
@@ -57,12 +58,11 @@ const FocusNudgeBanner: React.FC<FocusNudgeBannerProps> = ({
         `}>
           
           {/* Duck Reaction Image - Enhanced Animation Container */}
+          {/* Always use the Blue/Sky Premium Circle (duck-premium-circle) as requested in screenshot, even if angry */}
           <div className={`
              shrink-0 w-28 h-28 rounded-full flex items-center justify-center relative 
              border-4 border-white/20 shadow-2xl z-10
-             ${isAngry 
-               ? 'bg-[radial-gradient(circle_at_30%_35%,rgba(255,255,255,0.6)_0%,rgba(248,113,113,1)_40%,rgba(220,38,38,1)_100%)] shadow-[inset_0_2px_8px_rgba(255,255,255,0.5),inset_0_-4px_10px_rgba(153,27,27,0.2),0_12px_24px_-6px_rgba(220,38,38,0.5)]' 
-               : 'duck-premium-circle'}
+             duck-premium-circle
              ${visible ? 'animate-duck-float' : ''}
           `}>
              {/* Inner wrapper for entrance tilt */}

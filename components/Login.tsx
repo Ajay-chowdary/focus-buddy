@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Brain, User, Eye } from 'lucide-react';
+import { Brain, User, Eye, EyeOff } from 'lucide-react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
@@ -92,7 +93,7 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
             </div>
 
             <input
-              type={showPassword ? 'text' : 'password'}   // 👈 WORKING
+              type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               className="w-full pl-10 pr-10 py-3 rounded-xl border border-border bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-gray-400"
               value={password}
@@ -100,13 +101,22 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
               onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
             />
 
-            {/* 👇 FIXED: Clickable toggle button */}
+            {/* Clickable toggle button */}
             <button
               type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPassword(prev => !prev);
+              }}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-secondary hover:text-brand transition-colors z-20 cursor-pointer"
+              tabIndex={-1}
             >
-              <Eye className="h-5 w-5" />
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
             </button>
           </div>
 
@@ -160,4 +170,3 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
 };
 
 export default Login;
-
