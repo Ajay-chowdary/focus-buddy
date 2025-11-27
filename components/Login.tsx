@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Brain, User, Eye } from 'lucide-react';
 import { auth } from '../firebase';
@@ -14,6 +13,9 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
   const [error, setError] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // 🔥 Password visibility toggle
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleAuth = async () => {
     setError('');
@@ -67,6 +69,7 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
         </p>
 
         <div className="w-full space-y-4">
+
           {/* Email Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -87,17 +90,24 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <div className="h-5 w-5 text-gray-400 font-bold text-xs flex items-center justify-center border-2 border-gray-400 rounded-md">***</div>
             </div>
+
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}   // 👈 WORKING
               placeholder="Password"
               className="w-full pl-10 pr-10 py-3 rounded-xl border border-border bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all placeholder:text-gray-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
             />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <Eye className="h-5 w-5 text-gray-400" />
-            </div>
+
+            {/* 👇 FIXED: Clickable toggle button */}
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-primary transition-colors"
+            >
+              <Eye className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Error Message */}
@@ -124,24 +134,25 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
             disabled={loading}
             className="w-full bg-brand text-white font-medium py-3.5 rounded-full shadow-md shadow-brand/20 hover:bg-orange-800 transition-all mt-4 ios-hover-wiggle disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')} &rarr;
+            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')} →
           </button>
 
           {/* Toggle Login/Signup */}
           <div className="mt-6 text-center">
-             <p className="text-sm text-secondary">
-                 {isLogin ? "Don't have an account? " : "Already have an account? "}
-                 <button 
-                     onClick={() => {
-                         setIsLogin(!isLogin);
-                         setError('');
-                     }}
-                     className="text-brand font-bold hover:underline transition-all"
-                 >
-                     {isLogin ? 'Sign Up' : 'Sign In'}
-                 </button>
-             </p>
+            <p className="text-sm text-secondary">
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <button 
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError('');
+                }}
+                className="text-brand font-bold hover:underline transition-all"
+              >
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </button>
+            </p>
           </div>
+
         </div>
       </div>
     </div>
@@ -149,3 +160,4 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
 };
 
 export default Login;
+
