@@ -9,8 +9,9 @@ import Tools from './components/Tools';
 import AIChat from './components/AIChat';
 import FocusNudgeBanner from './components/FocusNudgeBanner';
 import { User, Settings, LogOut, X, Bell, Volume2, Moon, ChevronRight, Pencil, Mail } from 'lucide-react';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Initialize with just today's empty stats for a clean "new user" experience
 const INITIAL_STATS: DailyStats[] = [{
@@ -29,25 +30,60 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  // Helper to sync profile to Firestore
+  const syncProfileToFirestore = async (uid: string, profile: UserProfile) => {
+    try {
+      await setDoc(doc(db, 'users', uid), profile, { merge: true });
+      console.log("Profile synced to Firestore");
+    } catch (error) {
+      console.error("Error syncing profile to Firestore:", error);
+    }
+  };
+
+  // Helper to load profile from Firestore
+  const loadProfileFromFirestore = async (uid: string) => {
+    try {
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data() as UserProfile;
+      }
+    } catch (error) {
+      console.error("Error loading profile from Firestore:", error);
+    }
+    return null;
+  };
+
   // Authentication State Listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in
-        if (userProfile) {
-          // If we are currently on login, go to stats. otherwise keep view
-          setView(prev => prev === 'login' ? 'stats' : prev);
+        // Try to load from Firestore first
+        const cloudProfile = await loadProfileFromFirestore(user.uid);
+        
+        if (cloudProfile) {
+          setUserProfile(cloudProfile);
+          localStorage.setItem('focusbuddy_user', JSON.stringify(cloudProfile));
+          setView('stats'); // Go to dashboard if profile exists
+        } else if (userProfile) {
+          // If we have local but no cloud (rare), sync up
+          await syncProfileToFirestore(user.uid, userProfile);
+          setView('stats');
         } else {
+          // No profile anywhere, go to onboarding
           setView('onboarding');
         }
       } else {
         // User is signed out
+        setUserProfile(null);
+        localStorage.removeItem('focusbuddy_user');
         setView('login');
       }
     });
 
     return () => unsubscribe();
-  }, [userProfile]);
+  }, []); // Remove userProfile dep to avoid infinite loops, we handle it inside
   
   // Focus Mode State & Nudge State
   const [isFocusModeOn, setIsFocusModeOn] = useState(true); // Default to on for immediate testing
@@ -195,23 +231,30 @@ const App: React.FC = () => {
   // However, Login component still calls onSignIn for immediate feedback or legacy reasons
   const handleLoginSuccess = () => {
     // This is optional if useEffect handles everything, but keeps the flow explicit
-    if (userProfile) {
-      setView('stats');
-    } else {
-      setView('onboarding');
-    }
+    // We let onAuthStateChanged handle the redirect to 'onboarding' or 'stats'
   };
 
-  const handleOnboardingComplete = (name: string, role: 'student' | 'professional') => {
+  const handleOnboardingComplete = async (name: string, role: 'student' | 'professional') => {
     const profile: UserProfile = { name, role };
     setUserProfile(profile);
     localStorage.setItem('focusbuddy_user', JSON.stringify(profile));
+    
+    // Save to Firestore
+    if (auth.currentUser) {
+      await syncProfileToFirestore(auth.currentUser.uid, profile);
+    }
+    
     setView('stats');
   };
 
-  const handleUpdateProfile = (newProfile: UserProfile) => {
+  const handleUpdateProfile = async (newProfile: UserProfile) => {
     setUserProfile(newProfile);
     localStorage.setItem('focusbuddy_user', JSON.stringify(newProfile));
+    
+    // Save changes to Firestore
+    if (auth.currentUser) {
+      await syncProfileToFirestore(auth.currentUser.uid, newProfile);
+    }
   };
 
   const handleLogout = async () => {

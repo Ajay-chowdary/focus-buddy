@@ -1,7 +1,10 @@
+// firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
+// Your Firebase configuration
+// Reverted to original provided values to fix API key typos
 const firebaseConfig = {
   apiKey: "AIzaSyChZV_mKPmfaT8xr8RMsqflwkZqqmoAPvE",
   authDomain: "focus-buddy-40292.firebaseapp.com",
@@ -12,7 +15,11 @@ const firebaseConfig = {
   measurementId: "G-732DVWDN1E"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Export services
 export const auth = getAuth(app);
-export const analytics = getAnalytics(app);
+export const db = getFirestore(app); // Firestore for saving data
+
 export default app;
